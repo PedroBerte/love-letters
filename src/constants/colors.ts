@@ -5,4 +5,5 @@ export const COLORS = {
   textDark: "#303030",
   primaryGray: "#9FA3B3",
   secondaryGray: "#F4F4F4",
+  borderGray: "#DFE2E8",
 };

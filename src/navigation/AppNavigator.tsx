@@ -11,82 +11,86 @@ import TaskIcon from "../svgs/TaskListIcon.svg";
 import EmotionsIcons from "../svgs/EmotionsIcon.svg";
 import { COLORS } from "../constants/colors";
 import { View, StyleSheet } from "react-native";
+import Header from "../components/Header";
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size, focused }) => {
-          if (route.name === "Home") {
-            return (
-              <View style={styles.iconContainer}>
-                <HomeIcon
-                  width={30 + (focused ? 3 : 0)}
-                  height={30 + (focused ? 3 : 0)}
-                  fill={focused ? COLORS.primaryBrown : COLORS.textDark}
-                />
-                {focused && <View style={styles.dot}></View>}
-              </View>
-            );
-          }
-          if (route.name === "Metas") {
-            return (
-              <View style={styles.iconContainer}>
-                <TaskIcon
-                  width={35 + (focused ? 3 : 0)}
-                  height={35 + (focused ? 3 : 0)}
-                  fill={focused ? COLORS.primaryBrown : COLORS.textDark}
-                />
-                {focused && <View style={styles.dot}></View>}
-              </View>
-            );
-          }
-          if (route.name === "Cartas") {
-            return (
-              <View style={styles.iconContainer}>
-                <MessageIcon
-                  width={31 + (focused ? 3 : 0)}
-                  height={31 + (focused ? 3 : 0)}
-                  stroke={focused ? COLORS.primaryBrown : COLORS.textDark}
-                />
-                {focused && <View style={styles.dot}></View>}
-              </View>
-            );
-          }
-          if (route.name === "Emoções") {
-            return (
-              <View style={styles.iconContainer}>
-                <EmotionsIcons
-                  width={31 + (focused ? 3 : 0)}
-                  height={31 + (focused ? 3 : 0)}
-                  stroke={focused ? COLORS.primaryBrown : COLORS.textDark}
-                />
-                {focused && <View style={styles.dot}></View>}
-              </View>
-            );
-          }
-        },
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          bottom: 30,
-          right: 10,
-          left: 10,
-          position: "absolute",
-          borderTopWidth: 0,
-          borderRadius: 16,
-          height: 70,
-          shadowColor: "transparent",
-        },
-      })}
-    >
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Metas" component={Goals} />
-      <Tab.Screen name="Cartas" component={Letters} />
-      <Tab.Screen name="Emoções" component={Emotions} />
-    </Tab.Navigator>
+    <>
+      <Header />
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size, focused }) => {
+            if (route.name === "Home") {
+              return (
+                <View style={styles.iconContainer}>
+                  <HomeIcon
+                    width={30 + (focused ? 3 : 0)}
+                    height={30 + (focused ? 3 : 0)}
+                    fill={focused ? COLORS.primaryBrown : COLORS.textDark}
+                  />
+                  {focused && <View style={styles.dot}></View>}
+                </View>
+              );
+            }
+            if (route.name === "Metas") {
+              return (
+                <View style={styles.iconContainer}>
+                  <TaskIcon
+                    width={35 + (focused ? 3 : 0)}
+                    height={35 + (focused ? 3 : 0)}
+                    fill={focused ? COLORS.primaryBrown : COLORS.textDark}
+                  />
+                  {focused && <View style={styles.dot}></View>}
+                </View>
+              );
+            }
+            if (route.name === "Cartas") {
+              return (
+                <View style={styles.iconContainer}>
+                  <MessageIcon
+                    width={31 + (focused ? 3 : 0)}
+                    height={31 + (focused ? 3 : 0)}
+                    stroke={focused ? COLORS.primaryBrown : COLORS.textDark}
+                  />
+                  {focused && <View style={styles.dot}></View>}
+                </View>
+              );
+            }
+            if (route.name === "Emoções") {
+              return (
+                <View style={styles.iconContainer}>
+                  <EmotionsIcons
+                    width={31 + (focused ? 3 : 0)}
+                    height={31 + (focused ? 3 : 0)}
+                    stroke={focused ? COLORS.primaryBrown : COLORS.textDark}
+                  />
+                  {focused && <View style={styles.dot}></View>}
+                </View>
+              );
+            }
+          },
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            bottom: 30,
+            right: 10,
+            left: 10,
+            position: "absolute",
+            borderTopWidth: 0,
+            borderRadius: 16,
+            height: 70,
+            shadowColor: "transparent",
+          },
+        })}
+      >
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Metas" component={Goals} />
+        <Tab.Screen name="Cartas" component={Letters} />
+        <Tab.Screen name="Emoções" component={Emotions} />
+      </Tab.Navigator>
+    </>
   );
 };
 
