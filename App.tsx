@@ -8,6 +8,7 @@ import { COLORS } from "./src/constants/colors";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { RootSiblingParent } from "react-native-root-siblings";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,13 +27,15 @@ export default function App() {
   if (!loaded) return null;
 
   return (
-    <AuthProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </SafeAreaView>
-    </AuthProvider>
+    <RootSiblingParent>
+      <AuthProvider>
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </SafeAreaView>
+      </AuthProvider>
+    </RootSiblingParent>
   );
 }
 

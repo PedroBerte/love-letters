@@ -6,4 +6,8 @@ export const COLORS = {
   primaryGray: "#9FA3B3",
   secondaryGray: "#F4F4F4",
   borderGray: "#DFE2E8",
+  UTILITIES: {
+    red: "#D0362E",
+    warning: "#EBAC79",
+  },
 };

@@ -1,16 +1,34 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
 import { COLORS } from "../constants/colors";
 
 type buttonProps = {
   onPress: () => any;
   title: string;
+  isLoading?: boolean;
 };
-
-export default function Button({ onPress, title }: buttonProps) {
+export default function Button({
+  onPress,
+  title,
+  isLoading = false,
+}: buttonProps) {
   return (
     <Pressable style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>{title}</Text>
+      {!isLoading ? (
+        <Text style={styles.text}>{title}</Text>
+      ) : (
+        <ActivityIndicator
+          animating={isLoading}
+          style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+          color="white"
+        />
+      )}
     </Pressable>
   );
 }

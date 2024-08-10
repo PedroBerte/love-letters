@@ -11,6 +11,7 @@ import { COLORS } from "../constants/colors";
 interface InputProps extends TextInputProps {
   label: string;
   inputInfo?: string;
+  inputError?: string;
   required?: boolean;
 }
 
@@ -18,6 +19,7 @@ export default function Input({
   label,
   placeholder,
   inputInfo,
+  inputError,
   required,
   ...textInputProps
 }: InputProps) {
@@ -42,6 +44,11 @@ export default function Input({
       <View style={{ width: "100%", alignItems: "flex-end" }}>
         <Text style={inputInfo ? styles.inputInfo : { display: "none" }}>
           {inputInfo}
+        </Text>
+      </View>
+      <View style={{ width: "100%", alignItems: "flex-start" }}>
+        <Text style={inputError ? styles.inputError : { display: "none" }}>
+          {inputError}
         </Text>
       </View>
     </View>
@@ -72,5 +79,10 @@ const styles = StyleSheet.create({
     color: COLORS.primaryGray,
     marginLeft: 2,
     marginBottom: -12,
+  },
+  inputError: {
+    fontSize: 11,
+    color: COLORS.UTILITIES.red,
+    marginLeft: 2,
   },
 });
