@@ -1,11 +1,9 @@
 import {
-  browserSessionPersistence,
   createUserWithEmailAndPassword,
   deleteUser,
-  inMemoryPersistence,
   onAuthStateChanged,
-  setPersistence,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import React, {
   createContext,
@@ -18,14 +16,16 @@ import { auth, db } from "../services/firebase-config";
 import { doc, setDoc } from "firebase/firestore";
 import { UserTypes } from "../types/UserTypes";
 import showToast from "../utils/showToast";
+import insertProfilePicture from "../services/requests/insertProfilePicture";
 
 type AuthContextTypes = {
   isLoggedIn: boolean;
   registerUser: (
     name: string,
     email: string,
-    password: string
-  ) => Promise<boolean>;
+    password: string,
+    photoUri: string
+  ) => Promise<void>;
   loginUser: (email: string, password: string) => Promise<boolean>;
 };
 
@@ -50,8 +50,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   async function registerUser(
     name: string,
     email: string,
-    password: string
-  ): Promise<boolean> {
+    password: string,
+    photoUri: string
+  ): Promise<void> {
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         const user = userCredential.user;
@@ -61,6 +62,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           email: email,
         } as UserTypes)
           .then(async () => {
+            await insertProfilePicture(photoUri).then(async (photo) => {
+              await updateProfile(user, {
+                photoURL: photo,
+                displayName: name,
+              });
+            });
             showToast({
               toastMessage: "Que bom ter você aqui! 😍",
               type: "success",
@@ -73,7 +80,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               toastMessage: "Algo deu errado... Tente novamente mais tarde! 😭",
               type: "error",
             });
-            return false;
           });
       })
       .catch((error) => {
@@ -81,33 +87,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           toastMessage: "Algo deu errado... Tente novamente mais tarde! 😭",
           type: "error",
         });
-        return false;
       });
-    return true;
   }
 
   async function loginUser(email: string, password: string): Promise<boolean> {
-    setPersistence(auth, inMemoryPersistence)
-      .then(async () => {
-        return await signInWithEmailAndPassword(auth, email, password)
-          .then(() => {
-            showToast({
-              toastMessage: "Muito bom ter você de volta! 😍",
-              type: "success",
-            });
-            setIsLoggedIn(true);
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            if (errorCode == "auth/invalid-credential") {
-              showToast({
-                toastMessage: "Email ou/e senha incorretas! 🧐",
-                type: "error",
-              });
-              return false;
-            }
-            return false;
+    await signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        showToast({
+          toastMessage: "Muito bom ter você de volta! 😍",
+          type: "success",
+        });
+        setIsLoggedIn(true);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        if (errorCode == "auth/invalid-credential") {
+          showToast({
+            toastMessage: "Email ou/e senha incorretas! 🧐",
+            type: "error",
           });
+          return false;
+        }
+        return false;
       })
       .catch(() => {
         showToast({

@@ -1,16 +1,33 @@
 import { Text, View, Image, StyleSheet } from "react-native";
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import image from "./../../assets/favicon.png";
 import { COLORS } from "../constants/colors";
+import { auth } from "../services/firebase-config";
+import { User } from "firebase/auth";
 
 export default function Header() {
+  const [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    if (auth.currentUser) setUser(auth.currentUser);
+  }, [auth]);
+
   return (
     <View style={styles.container}>
-      <Image source={image} width={30} height={30} />
-      <View>
-        <Text style={styles.title}>Pedro Bertelli</Text>
-        <Text style={styles.subtitle}>💍 Com Larissa Lima</Text>
-      </View>
+      {user && (
+        <>
+          <Image
+            source={{
+              uri: user?.photoURL ?? "",
+            }}
+            style={styles.userPhoto}
+          />
+          <View>
+            <Text style={styles.title}>{user.displayName}</Text>
+            <Text style={styles.subtitle}>💍 Com Larissa Lima</Text>
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -33,5 +50,10 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     fontSize: 12,
     color: COLORS.primaryGray,
+  },
+  userPhoto: {
+    width: 45,
+    height: 45,
+    borderRadius: 45,
   },
 });

@@ -17,6 +17,7 @@ type registerForm = {
 export default function Register() {
   const auth = useAuth();
 
+  const [userPhotoUri, setUserPhotoUri] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,7 +73,13 @@ export default function Register() {
         </Text>
       </View>
       <View style={styles.photoContainer}>
-        <PhotoSelector size={150} />
+        <PhotoSelector
+          size={120}
+          setPhotoUriSelected={(e) => {
+            console.log(e);
+            setUserPhotoUri(e);
+          }}
+        />
       </View>
       <View style={styles.form}>
         <Input
@@ -116,7 +123,7 @@ export default function Register() {
             if (isFormValid) {
               setIsLoading(true);
               await auth
-                .registerUser(name, email, password)
+                .registerUser(name, email, password, userPhotoUri)
                 .finally(() => setIsLoading(false));
             }
           }}
