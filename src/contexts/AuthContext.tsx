@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   onAuthStateChanged(auth, (user) => {
-    console.log(user);
     if (user) {
       setIsLoggedIn(true);
     } else {
@@ -56,18 +55,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         const user = userCredential.user;
+        var photoUrl = await insertProfilePicture(photoUri);
+        await updateProfile(user, {
+          photoURL: photoUrl,
+          displayName: name,
+        });
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           name: name,
           email: email,
+          profilePhotoURL: photoUrl,
+          alreadyHavePartner: false,
+          partnerUID: null,
         } as UserTypes)
           .then(async () => {
-            await insertProfilePicture(photoUri).then(async (photo) => {
-              await updateProfile(user, {
-                photoURL: photo,
-                displayName: name,
-              });
-            });
             showToast({
               toastMessage: "Que bom ter você aqui! 😍",
               type: "success",

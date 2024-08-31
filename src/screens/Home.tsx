@@ -3,6 +3,7 @@ import React from "react";
 import { COLORS } from "../constants/colors";
 import { signOut } from "firebase/auth";
 import { auth } from "../services/firebase-config";
+import PartnerSelector from "../components/modals/PartnerSelector/PartnerSelector";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
       >
         <Text>teste</Text>
       </Pressable>
+      <PartnerSelector />
     </View>
   );
 }
