@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet } from "react-native";
 import React from "react";
+import Button from "../../../Button";
 
 type PartnerTypes = {
   name: string;
@@ -20,6 +21,9 @@ export default function Partner({ name, photoURL }: PartnerTypes) {
         <Image style={styles.userImage} source={{ uri: photoURL }} />
         <Text>{name}</Text>
       </View>
+      <View>
+        <Button title="Convidar" onPress={() => {}} />
+      </View>
     </View>
   );
 }
@@ -27,6 +31,7 @@ export default function Partner({ name, photoURL }: PartnerTypes) {
 const styles = StyleSheet.create({
   container: {
     display: "flex",
+    flexDirection: "row",
     justifyContent: "space-between",
   },
   userImage: {

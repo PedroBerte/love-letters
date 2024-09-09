@@ -12,12 +12,30 @@ type buttonProps = {
   onPress: () => any;
   title: string;
   isLoading?: boolean;
+  size?: "small" | "medium" | "large";
 };
 export default function Button({
   onPress,
   title,
   isLoading = false,
 }: buttonProps) {
+  const styles = StyleSheet.create({
+    button: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 12,
+      borderRadius: 6,
+      backgroundColor: COLORS.primaryPink,
+      width: "100%",
+    },
+    text: {
+      fontSize: 16,
+      fontFamily: "Poppins-Bold",
+      lineHeight: 21,
+      color: "white",
+    },
+  });
+
   return (
     <Pressable style={styles.button} onPress={onPress}>
       {!isLoading ? (
@@ -32,20 +50,3 @@ export default function Button({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 6,
-    backgroundColor: COLORS.primaryPink,
-    width: "100%",
-  },
-  text: {
-    fontSize: 16,
-    fontFamily: "Poppins-Bold",
-    lineHeight: 21,
-    color: "white",
-  },
-});

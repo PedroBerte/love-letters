@@ -19,28 +19,34 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../../services/firebase-config";
 import Partner from "./components/Partner";
+import { COLORS } from "../../../constants/colors";
+import Input from "../../Input";
 
 export default function PartnerSelector() {
   const [partners, setPartners] = useState<UserTypes[]>();
 
   useEffect(() => {
     async function getAllUsers() {
-      const q = query(
-        collection(db, "users"),
-        where("alreadyHavePartner", "==", false),
-        where("uid", "!=", auth.currentUser?.uid)
-      );
-      const partners = await getDocs(q);
-      setPartners(
-        partners.docs.map((x) => x.data() as UserTypes) as UserTypes[]
-      );
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("alreadyHavePartner", "==", false)
+        );
+        const partners = await getDocs(q);
+        setPartners(
+          partners.docs.map((x) => x.data() as UserTypes) as UserTypes[]
+        );
+        console.log(partners, "teste");
+      } catch (error) {
+        console.error(error);
+      }
     }
     getAllUsers();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Modal visible={true} transparent={true} animationType="slide">
+      <Modal visible={false} transparent={true} animationType="slide">
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <View>
@@ -51,7 +57,8 @@ export default function PartnerSelector() {
                 Vamos te ajudar nisso! 💍
               </Text>
             </View>
-            <ScrollView>
+            <Input placeholder="Filtrar" />
+            <ScrollView style={styles.partnerSelectorContainer}>
               {partners &&
                 partners.map((partner) => (
                   <Partner
@@ -84,11 +91,16 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "white",
     borderRadius: 8,
+    gap: 10,
   },
   modalTitle: {
     fontSize: 16,
   },
   modalSubtitle: {
     fontSize: 14,
+    color: COLORS.primaryGray,
+  },
+  partnerSelectorContainer: {
+    gap: 10,
   },
 });

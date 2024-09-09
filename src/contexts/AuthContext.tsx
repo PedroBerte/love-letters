@@ -17,6 +17,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { UserTypes } from "../types/UserTypes";
 import showToast from "../utils/showToast";
 import insertProfilePicture from "../services/requests/insertProfilePicture";
+import * as SplashScreen from "expo-splash-screen";
 
 type AuthContextTypes = {
   isLoggedIn: boolean;
@@ -38,13 +39,17 @@ const AuthContext = createContext<AuthContextTypes>({} as AuthContextTypes);
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+      SplashScreen.hideAsync();
+    });
+    return () => unsubscribe();
+  }, []);
 
   async function registerUser(
     name: string,

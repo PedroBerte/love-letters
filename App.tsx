@@ -18,12 +18,6 @@ export default function App() {
     "Poppins-Bold": require("./assets/fonts/Poppins-Bold.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
-
   if (!loaded) return null;
 
   return (

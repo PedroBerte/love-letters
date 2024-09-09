@@ -9,7 +9,7 @@ import React from "react";
 import { COLORS } from "../constants/colors";
 
 interface InputProps extends TextInputProps {
-  label: string;
+  label?: string;
   inputInfo?: string;
   inputError?: string;
   required?: boolean;
@@ -25,17 +25,12 @@ export default function Input({
 }: InputProps) {
   return (
     <View style={styles.inputContainer}>
-      <Text style={styles.inputLabel}>
-        {label}{" "}
-        <Text
-          style={[
-            { color: "red" },
-            required ? { display: "flex" } : { display: "none" },
-          ]}
-        >
-          *
+      {label && (
+        <Text style={styles.inputLabel}>
+          {label} <Text style={{ color: "red" }}>*</Text>
         </Text>
-      </Text>
+      )}
+
       <TextInput
         style={styles.input}
         placeholder={placeholder}
