@@ -1,34 +1,47 @@
 import { Text, View, Image, StyleSheet } from "react-native";
 import React, { Component, useEffect, useState } from "react";
-import image from "./../../assets/favicon.png";
 import { COLORS } from "../constants/colors";
-import { auth } from "../services/firebase-config";
-import { User } from "firebase/auth";
+import { useAuth } from "../contexts/AuthContext";
+import NotificationsModal from "./modals/Notifications/NotificationsModal";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Header() {
-  const [user, setUser] = useState<User>();
-
-  useEffect(() => {
-    if (auth.currentUser) setUser(auth.currentUser);
-  }, [auth]);
+  const { user } = useAuth();
+  const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
 
   return (
-    <View style={styles.container}>
-      {user && (
-        <>
-          <Image
-            source={{
-              uri: user?.photoURL ?? "",
-            }}
-            style={styles.userPhoto}
-          />
-          <View>
-            <Text style={styles.title}>{user.displayName}</Text>
-            <Text style={styles.subtitle}>💍 Com Larissa Lima</Text>
+    <>
+      <View style={styles.container}>
+        {user && (
+          <View style={styles.userContainer}>
+            <Image
+              source={{
+                uri: user?.profilePhotoURL ?? "",
+              }}
+              style={styles.userPhoto}
+            />
+            <View>
+              <Text style={styles.title}>{user.name}</Text>
+              <Text style={styles.subtitle}>
+                {user.alreadyHavePartner
+                  ? `💍 Com ${user.partnerName}`
+                  : "Sem parceiro 😭"}{" "}
+              </Text>
+            </View>
           </View>
-        </>
-      )}
-    </View>
+        )}
+        <Ionicons
+          name="notifications"
+          size={25}
+          color={COLORS.textDark}
+          onPress={() => setNotificationModalIsOpen(true)}
+        />
+      </View>
+      <NotificationsModal
+        isOpen={notificationModalIsOpen}
+        setIsOpen={(x) => setNotificationModalIsOpen(x)}
+      />
+    </>
   );
 }
 
@@ -40,6 +53,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     gap: 12,
     alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontFamily: "Poppins-Regular",
@@ -50,6 +64,11 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     fontSize: 12,
     color: COLORS.primaryGray,
+  },
+  userContainer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
   },
   userPhoto: {
     width: 45,

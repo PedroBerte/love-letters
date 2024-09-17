@@ -3,6 +3,7 @@ import {
   deleteUser,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signOut,
   updateProfile,
 } from "firebase/auth";
 import React, {
@@ -13,14 +14,19 @@ import React, {
   useEffect,
 } from "react";
 import { auth, db } from "../services/firebase-config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { UserTypes } from "../types/UserTypes";
 import showToast from "../utils/showToast";
-import insertProfilePicture from "../services/requests/insertProfilePicture";
+import insertProfilePicture from "../services/querys/insertProfilePicture";
 import * as SplashScreen from "expo-splash-screen";
+import getStorageUserData from "../utils/getStorageUserData";
+import setStorageUserData from "../utils/setStorageUserData";
+import deleteStorageUserData from "../utils/deleteStorageUserData";
 
 type AuthContextTypes = {
   isLoggedIn: boolean;
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setUser: React.Dispatch<React.SetStateAction<UserTypes | null>>;
   registerUser: (
     name: string,
     email: string,
@@ -28,6 +34,8 @@ type AuthContextTypes = {
     photoUri: string
   ) => Promise<void>;
   loginUser: (email: string, password: string) => Promise<boolean>;
+  logoutUser: () => Promise<void>;
+  user: UserTypes | null;
 };
 
 type AuthProviderProps = {
@@ -38,18 +46,47 @@ const AuthContext = createContext<AuthContextTypes>({} as AuthContextTypes);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserTypes | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
+    const checkUserSession = async () => {
+      const logged = await validateUserSession();
+      setIsLoggedIn(logged);
       SplashScreen.hideAsync();
-    });
-    return () => unsubscribe();
+    };
+
+    checkUserSession();
   }, []);
+
+  async function validateUserSession() {
+    console.log("Validating user session...");
+    var storageUser = await getStorageUserData();
+    console.log("Storage user: ", storageUser);
+    var logged = false;
+    if (!storageUser) {
+      onAuthStateChanged(auth, async (userCredentials) => {
+        if (userCredentials) {
+          var userDocs = await getDoc(doc(db, "users", userCredentials.uid));
+          var user = {
+            uid: userCredentials.uid,
+            name: userCredentials.displayName,
+            email: userCredentials.email,
+            profilePhotoURL: userCredentials.photoURL,
+            alreadyHavePartner: userDocs.data()?.alreadyHavePartner,
+            partnerUID: userDocs.data()?.partnerUID,
+            partnerName: userDocs.data()?.partnerName,
+          } as UserTypes;
+          await setStorageUserData(user);
+          setUser(user);
+          logged = true;
+        }
+      });
+    } else {
+      setUser(storageUser);
+      logged = true;
+    }
+    return logged;
+  }
 
   async function registerUser(
     name: string,
@@ -80,12 +117,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             });
             setIsLoggedIn(true);
           })
-          .catch(async () => {
+          .catch(async (error) => {
             await deleteUser(user);
             showToast({
               toastMessage: "Algo deu errado... Tente novamente mais tarde! 😭",
               type: "error",
             });
+            console.log(error);
           });
       })
       .catch((error) => {
@@ -93,12 +131,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           toastMessage: "Algo deu errado... Tente novamente mais tarde! 😭",
           type: "error",
         });
+        console.log(error);
       });
   }
 
   async function loginUser(email: string, password: string): Promise<boolean> {
     await signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then(async (userCredentials) => {
+        var userDocs = await getDoc(doc(db, "users", userCredentials.user.uid));
+        var user = {
+          uid: userCredentials.user.uid,
+          name: userCredentials.user.displayName,
+          email: userCredentials.user.email,
+          profilePhotoURL: userCredentials.user.photoURL,
+          alreadyHavePartner: userDocs.data()?.alreadyHavePartner,
+          partnerUID: userDocs.data()?.partnerUID,
+          partnerName: userDocs.data()?.partnerName,
+        } as UserTypes;
+        await setStorageUserData(user);
         showToast({
           toastMessage: "Muito bom ter você de volta! 😍",
           type: "success",
@@ -125,8 +175,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
     return false;
   }
+
+  async function logoutUser() {
+    await deleteStorageUserData();
+    await signOut(auth);
+    setIsLoggedIn(false);
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, registerUser, loginUser }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        registerUser,
+        loginUser,
+        user,
+        setIsLoggedIn,
+        setUser,
+        logoutUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

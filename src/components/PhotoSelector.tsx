@@ -4,7 +4,7 @@ import { COLORS } from "../constants/colors";
 import CameraIcon from "../svgs/CameraIcon.svg";
 import UploadIcon from "../svgs/UploadIcon.svg";
 import * as ImagePicker from "expo-image-picker";
-import updateProfilePicture from "../services/requests/insertProfilePicture";
+import updateProfilePicture from "../services/querys/insertProfilePicture";
 
 type PhotoTypes = {
   size: number;

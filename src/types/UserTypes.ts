@@ -5,4 +5,5 @@ export type UserTypes = {
   profilePhotoURL: string;
   alreadyHavePartner: boolean;
   partnerUID: string | null;
+  partnerName: string | null;
 };

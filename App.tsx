@@ -7,7 +7,6 @@ import AuthNavigator from "./src/navigation/AuthNavigator";
 import { COLORS } from "./src/constants/colors";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
 import { RootSiblingParent } from "react-native-root-siblings";
 
 SplashScreen.preventAutoHideAsync();
