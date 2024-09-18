@@ -96,6 +96,7 @@ export default function NotificationsModal(props: NotificationTypes) {
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
     justifyContent: "center",
     alignItems: "center",
   },

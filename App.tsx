@@ -8,6 +8,7 @@ import { COLORS } from "./src/constants/colors";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
+import PartnerSelectorModal from "./src/components/modals/PartnerSelector/PartnerSelectorModal";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,6 +26,7 @@ export default function App() {
         <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
           <NavigationContainer>
             <RootNavigator />
+            <PartnerSelectorModal />
           </NavigationContainer>
         </SafeAreaView>
       </AuthProvider>

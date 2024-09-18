@@ -4,10 +4,10 @@ import { COLORS } from "../constants/colors";
 import { useAuth } from "../contexts/AuthContext";
 import NotificationsModal from "./modals/Notifications/NotificationsModal";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import NotificationIconCounter from "./NotificationIconCounter";
 
 export default function Header() {
   const { user } = useAuth();
-  const [notificationModalIsOpen, setNotificationModalIsOpen] = useState(false);
 
   return (
     <>
@@ -30,17 +30,8 @@ export default function Header() {
             </View>
           </View>
         )}
-        <Ionicons
-          name="notifications"
-          size={25}
-          color={COLORS.textDark}
-          onPress={() => setNotificationModalIsOpen(true)}
-        />
+        <NotificationIconCounter />
       </View>
-      <NotificationsModal
-        isOpen={notificationModalIsOpen}
-        setIsOpen={(x) => setNotificationModalIsOpen(x)}
-      />
     </>
   );
 }

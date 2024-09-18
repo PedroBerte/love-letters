@@ -80,7 +80,7 @@ export default function Button({
   });
 
   return (
-    <Pressable style={styles.button} disabled={disabled} onTouchStart={onPress}>
+    <Pressable style={styles.button} disabled={disabled} onTouchEnd={onPress}>
       {!isLoading ? (
         <Text style={styles.text}>{title}</Text>
       ) : (
