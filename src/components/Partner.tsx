@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { InviteTypes } from "../types/InviteTypes";
 import { COLORS } from "../constants/colors";
 import handleAcceptPartnerInvite from "../services/querys/handleAcceptPartnerInvite";
+import { useUser } from "../contexts/UserContext";
 
 type PartnerTypes = {
   uid: string;
@@ -25,7 +26,7 @@ export default function Partner({
   description,
   isInvite = false,
 }: PartnerTypes) {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   async function handlePressButton() {
     if (isInvite) handleAcceptInvite();

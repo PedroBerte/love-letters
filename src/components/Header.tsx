@@ -1,25 +1,27 @@
-import { Text, View, Image, StyleSheet } from "react-native";
+import { Text, View, Image, StyleSheet, Pressable } from "react-native";
 import React, { Component, useEffect, useState } from "react";
 import { COLORS } from "../constants/colors";
 import { useAuth } from "../contexts/AuthContext";
-import NotificationsModal from "./modals/Notifications/NotificationsModal";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import NotificationIconCounter from "./NotificationIconCounter";
+import { useUser } from "../contexts/UserContext";
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const { logoutUser } = useAuth();
 
   return (
     <>
       <View style={styles.container}>
         {user && (
           <View style={styles.userContainer}>
-            <Image
-              source={{
-                uri: user?.profilePhotoURL ?? "",
-              }}
-              style={styles.userPhoto}
-            />
+            <Pressable onTouchStart={() => logoutUser()}>
+              <Image
+                source={{
+                  uri: user?.profilePhotoURL ?? "",
+                }}
+                style={styles.userPhoto}
+              />
+            </Pressable>
             <View>
               <Text style={styles.title}>{user.name}</Text>
               <Text style={styles.subtitle}>

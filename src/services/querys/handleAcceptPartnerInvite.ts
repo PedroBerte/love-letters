@@ -1,5 +1,5 @@
 import { doc, getDoc, runTransaction, Timestamp } from "firebase/firestore";
-import { auth, db } from "../firebase-config";
+import { db } from "../firebase-config";
 import { RelationshipTypes } from "../../types/RelationshipTypes";
 import setStorageUserData from "../../utils/setStorageUserData";
 import getStorageUserData from "../../utils/getStorageUserData";

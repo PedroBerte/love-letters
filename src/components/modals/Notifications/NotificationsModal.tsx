@@ -11,6 +11,7 @@ import Partner from "../../Partner";
 import { UserTypes } from "../../../types/UserTypes";
 import moment from "moment";
 import { Timestamp } from "firebase/firestore";
+import { useUser } from "../../../contexts/UserContext";
 
 type NotificationTypes = {
   setIsOpen: (isOpen: boolean) => void;
@@ -18,7 +19,7 @@ type NotificationTypes = {
 };
 
 export default function NotificationsModal(props: NotificationTypes) {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const [invites, setInvites] = useState<InviteTypes[]>();
   const [partners, setPartners] = useState<UserTypes[]>();

@@ -1,4 +1,11 @@
-import { View, Text, Modal, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Modal,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { UserTypes } from "../../../types/UserTypes";
 import { collection, getDocs, query, where } from "firebase/firestore";
@@ -7,18 +14,22 @@ import Partner from "../../Partner";
 import { COLORS } from "../../../constants/colors";
 import Input from "../../Input";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useAuth } from "../../../contexts/AuthContext";
 import getResultFromQuery from "../../../services/querys/getResultsFromQuery";
 import { InviteTypes } from "../../../types/InviteTypes";
+import { useUser } from "../../../contexts/UserContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function PartnerSelectorModal() {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const { isLoggedIn } = useAuth();
 
   const [partners, setPartners] = useState<UserTypes[]>();
   const [invites, setInvites] = useState<InviteTypes[]>();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     async function getAllUsers() {
       try {
         var partners = await getResultFromQuery<UserTypes>(
@@ -36,12 +47,13 @@ export default function PartnerSelectorModal() {
       } catch (error) {
         console.error(error);
       }
+      setIsLoading(false);
     }
     if (!user?.alreadyHavePartner) {
       getAllUsers();
       setIsOpen(true);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   return (
     <View style={styles.container}>
@@ -80,6 +92,15 @@ export default function PartnerSelectorModal() {
                       )}
                     />
                   ))}
+                {isLoading && (
+                  <View style={{ marginVertical: 12 }}>
+                    <ActivityIndicator
+                      animating={isLoading}
+                      style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+                      color={COLORS.primaryPink}
+                    />
+                  </View>
+                )}
               </View>
             </ScrollView>
           </View>

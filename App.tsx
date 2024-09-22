@@ -9,6 +9,8 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
 import PartnerSelectorModal from "./src/components/modals/PartnerSelector/PartnerSelectorModal";
+import { UserProvider } from "./src/contexts/UserContext";
+import { NotificationProvider } from "./src/contexts/NotificationContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,14 +24,20 @@ export default function App() {
 
   return (
     <RootSiblingParent>
-      <AuthProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-          <NavigationContainer>
-            <RootNavigator />
-            <PartnerSelectorModal />
-          </NavigationContainer>
-        </SafeAreaView>
-      </AuthProvider>
+      <UserProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <SafeAreaView
+              style={{ flex: 1, backgroundColor: COLORS.background }}
+            >
+              <NavigationContainer>
+                <RootNavigator />
+                <PartnerSelectorModal />
+              </NavigationContainer>
+            </SafeAreaView>
+          </NotificationProvider>
+        </AuthProvider>
+      </UserProvider>
     </RootSiblingParent>
   );
 }

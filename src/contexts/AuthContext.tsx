@@ -1,10 +1,7 @@
 import {
   createUserWithEmailAndPassword,
-  deleteUser,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  updateProfile,
 } from "firebase/auth";
 import React, {
   createContext,
@@ -13,20 +10,15 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { auth, db } from "../services/firebase-config";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { UserTypes } from "../types/UserTypes";
+import { auth } from "../services/firebase-config";
 import showToast from "../utils/showToast";
-import insertProfilePicture from "../services/querys/insertProfilePicture";
 import * as SplashScreen from "expo-splash-screen";
-import getStorageUserData from "../utils/getStorageUserData";
-import setStorageUserData from "../utils/setStorageUserData";
 import deleteStorageUserData from "../utils/deleteStorageUserData";
+import { useUser } from "./UserContext";
 
 type AuthContextTypes = {
   isLoggedIn: boolean;
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  setUser: React.Dispatch<React.SetStateAction<UserTypes | null>>;
   registerUser: (
     name: string,
     email: string,
@@ -35,7 +27,6 @@ type AuthContextTypes = {
   ) => Promise<void>;
   loginUser: (email: string, password: string) => Promise<boolean>;
   logoutUser: () => Promise<void>;
-  user: UserTypes | null;
 };
 
 type AuthProviderProps = {
@@ -45,8 +36,14 @@ type AuthProviderProps = {
 const AuthContext = createContext<AuthContextTypes>({} as AuthContextTypes);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const {
+    validateUserSession,
+    setUser,
+    createNewUser,
+    deleteUser,
+    storageUserWithFirebaseCredentials,
+  } = useUser();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<UserTypes | null>(null);
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -54,39 +51,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoggedIn(logged);
       SplashScreen.hideAsync();
     };
-
     checkUserSession();
   }, []);
-
-  async function validateUserSession() {
-    console.log("Validating user session...");
-    var storageUser = await getStorageUserData();
-    console.log("Storage user: ", storageUser);
-    var logged = false;
-    if (!storageUser) {
-      onAuthStateChanged(auth, async (userCredentials) => {
-        if (userCredentials) {
-          var userDocs = await getDoc(doc(db, "users", userCredentials.uid));
-          var user = {
-            uid: userCredentials.uid,
-            name: userCredentials.displayName,
-            email: userCredentials.email,
-            profilePhotoURL: userCredentials.photoURL,
-            alreadyHavePartner: userDocs.data()?.alreadyHavePartner,
-            partnerUID: userDocs.data()?.partnerUID,
-            partnerName: userDocs.data()?.partnerName,
-          } as UserTypes;
-          await setStorageUserData(user);
-          setUser(user);
-          logged = true;
-        }
-      });
-    } else {
-      setUser(storageUser);
-      logged = true;
-    }
-    return logged;
-  }
 
   async function registerUser(
     name: string,
@@ -96,20 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   ): Promise<void> {
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
-        const user = userCredential.user;
-        var photoUrl = await insertProfilePicture(photoUri);
-        await updateProfile(user, {
-          photoURL: photoUrl,
-          displayName: name,
-        });
-        await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          name: name,
-          email: email,
-          profilePhotoURL: photoUrl,
-          alreadyHavePartner: false,
-          partnerUID: null,
-        } as UserTypes)
+        await createNewUser(userCredential, name, email, photoUri)
           .then(async () => {
             showToast({
               toastMessage: "Que bom ter você aqui! 😍",
@@ -118,7 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setIsLoggedIn(true);
           })
           .catch(async (error) => {
-            await deleteUser(user);
+            await deleteUser(userCredential.user);
             showToast({
               toastMessage: "Algo deu errado... Tente novamente mais tarde! 😭",
               type: "error",
@@ -138,17 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   async function loginUser(email: string, password: string): Promise<boolean> {
     await signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredentials) => {
-        var userDocs = await getDoc(doc(db, "users", userCredentials.user.uid));
-        var user = {
-          uid: userCredentials.user.uid,
-          name: userCredentials.user.displayName,
-          email: userCredentials.user.email,
-          profilePhotoURL: userCredentials.user.photoURL,
-          alreadyHavePartner: userDocs.data()?.alreadyHavePartner,
-          partnerUID: userDocs.data()?.partnerUID,
-          partnerName: userDocs.data()?.partnerName,
-        } as UserTypes;
-        await setStorageUserData(user);
+        await storageUserWithFirebaseCredentials(userCredentials);
         showToast({
           toastMessage: "Muito bom ter você de volta! 😍",
           type: "success",
@@ -189,9 +132,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isLoggedIn,
         registerUser,
         loginUser,
-        user,
         setIsLoggedIn,
-        setUser,
         logoutUser,
       }}
     >
